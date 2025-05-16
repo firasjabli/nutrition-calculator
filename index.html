@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nutrition Calculator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2rem; background: #f4f4f4; }
+    .container { max-width: 600px; margin: auto; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    label { display: block; margin: 1rem 0 0.5rem; }
+    input, select { width: 100%; padding: 0.5rem; }
+    button { margin-top: 1rem; padding: 0.7rem 1.2rem; background: #28a745; color: white; border: none; cursor: pointer; }
+    #results { margin-top: 2rem; padding: 1rem; background: #e9ecef; border-radius: 8px; }
+    .lang-switch { display: flex; justify-content: space-between; margin-bottom: 1rem; }
+    .lang-switch button { flex: 1; margin: 0 5px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="lang-switch">
+      <button onclick="setLang('ar')">العربية</button>
+      <button onclick="setLang('fr')">Français</button>
+      <button onclick="setLang('en')">English</button>
+    </div>
+
+    <h2 id="title">Nutrition Calculator</h2>
+
+    <label id="label-gender">Gender:</label>
+    <select id="gender">
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+
+    <label id="label-age">Age:</label>
+    <input type="number" id="age" />
+
+    <label id="label-height">Height (cm):</label>
+    <input type="number" id="height" />
+
+    <label id="label-weight">Weight (kg):</label>
+    <input type="number" id="weight" />
+
+    <label id="label-goal">Goal:</label>
+    <select id="goal">
+      <option value="gain">Gain Weight</option>
+      <option value="lose">Lose Weight</option>
+      <option value="maintain">Maintain Weight</option>
+    </select>
+
+    <button onclick="calculate()">Calculate</button>
+
+    <div id="results"></div>
+  </div>
+
+  <script>
+    const lang = {
+      en: {
+        title: "Nutrition Calculator",
+        gender: "Gender:", age: "Age:", height: "Height (cm):", weight: "Weight (kg):", goal: "Goal:",
+        goals: { gain: "Gain Weight", lose: "Lose Weight", maintain: "Maintain Weight" }
+      },
+      fr: {
+        title: "Calculateur de Nutrition",
+        gender: "Sexe:", age: "Âge:", height: "Taille (cm):", weight: "Poids (kg):", goal: "Objectif:",
+        goals: { gain: "Prendre du poids", lose: "Perdre du poids", maintain: "Maintenir le poids" }
+      },
+      ar: {
+        title: "حاسبة التغذية",
+        gender: "الجنس:", age: "العمر:", height: "الطول (سم):", weight: "الوزن (كغ):", goal: "الغاية:",
+        goals: { gain: "زيادة الوزن", lose: "نقصان الوزن", maintain: "تثبيت الوزن" }
+      }
+    };
+
+    let currentLang = 'en';
+
+    function setLang(l) {
+      currentLang = l;
+      const ldata = lang[l];
+      document.getElementById("title").innerText = ldata.title;
+      document.getElementById("label-gender").innerText = ldata.gender;
+      document.getElementById("label-age").innerText = ldata.age;
+      document.getElementById("label-height").innerText = ldata.height;
+      document.getElementById("label-weight").innerText = ldata.weight;
+      document.getElementById("label-goal").innerText = ldata.goal;
+
+      const goalSelect = document.getElementById("goal");
+      goalSelect.options[0].text = ldata.goals.gain;
+      goalSelect.options[1].text = ldata.goals.lose;
+      goalSelect.options[2].text = ldata.goals.maintain;
+    }
+
+    function calculate() {
+      const weight = parseFloat(document.getElementById("weight").value);
+      const height = parseFloat(document.getElementById("height").value);
+      const age = parseFloat(document.getElementById("age").value);
+      const gender = document.getElementById("gender").value;
+      const goal = document.getElementById("goal").value;
+
+      if (!weight || !height || !age) {
+        document.getElementById("results").innerText = "Please fill all fields.";
+        return;
+      }
+
+      let bmr = gender === 'male'
+        ? 10 * weight + 6.25 * height - 5 * age + 5
+        : 10 * weight + 6.25 * height - 5 * age - 161;
+
+      let calories = bmr * 1.3;
+      if (goal === 'gain') calories += 300;
+      else if (goal === 'lose') calories -= 300;
+
+      const protein = Math.round(weight * 2);
+      const fat = Math.round(weight * 1);
+      const carbs = Math.round((calories - (protein * 4 + fat * 9)) / 4);
+
+      document.getElementById("results").innerHTML = `
+        <strong>${lang[currentLang].title}:</strong><br>
+        Calories: <strong>${Math.round(calories)}</strong> kcal<br>
+        Protein: <strong>${protein}</strong> g<br>
+        Fat: <strong>${fat}</strong> g<br>
+        Carbohydrates: <strong>${carbs}</strong> g
+      `;
+    }
+
+    setLang('en');
+  </script>
+</body>
+</html>
